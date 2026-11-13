@@ -102,7 +102,7 @@ def train(options):
 
     model.learn(
         total_timesteps=options["total_timesteps"],
-        tb_log_name=name,  # nombre de la corrida en tensorboard
+        #tb_log_name=name,  # nombre de la corrida en tensorboard
         progress_bar=options.get("progress_bar", False),  # requiere tqdm y rich
         callback=callback,
     )
