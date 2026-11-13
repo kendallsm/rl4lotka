@@ -83,10 +83,7 @@ def _integrate(pop, p, rhs, rng):
     return np.maximum(x, 0.0)
 
 
-# ======================================================================
-# Equilibrios
-# ======================================================================
-
+#equilibrios
 def lv_equilibrium(r, A):
     """equilibrio Lotka-Volterra (lo calculamos afuera provisionalmente)
     """
@@ -132,9 +129,9 @@ def growth_lv(pop, p, t, rng):
 
 
 class _LVParameters(_Parameters):
-    """Base de las redes LV: los coeficientes ecologicos arman r y A.
+    """Para el sistema Lotka-Volterra
 
-    Notacion de los coeficientes (todos >= 0; los signos los pone build):
+    Notacion de los coeficientes (todos son 0 o positivos; los signos los pone build cuando se construye la dinámica):
         r_i   crecimiento intrinseco de una presa basal
         m_i   mortalidad de un depredador (entra como r_i = -m_i)
         s_i   autolimitacion (A_ii = -s_i). En presas basales s_i = r_i / K_i
@@ -251,9 +248,6 @@ class parameters_model_2_3(_LVParameters):
 
 growth_model_2_3 = growth_lv
 
-# ======================================================================
-# model_1_2   A -> B, C ;  B -- C        estado [B, C, A]
-# ======================================================================
 
 _EQ_CACHE_1_2 = {}
 
