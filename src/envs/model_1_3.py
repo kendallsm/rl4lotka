@@ -1,4 +1,5 @@
 import inspect
+import warnings
 
 import numpy as np
 import gymnasium as gym
@@ -10,6 +11,7 @@ FISHED_IDX = (0, 1, 2)
 PREDATION = ((3, 0), (3, 1), (3, 2))   # dinamica
 COMPETITION = ((0, 1), (1, 2))         # la competicion
 _DEFAULT_INIT_POP = np.array([0.50, 0.50, 0.50, 0.50], dtype=np.float32) #valores iiniciales
+_REWARD_TYPES = ("harvest_equilibrium", "equilibrium", "harvest")
 
 
 def default_penalty(t):
@@ -33,6 +35,22 @@ def _adapt_growth_fn(fn):
         return lambda pop, p, t, rng: fn(pop, p, t)
     return lambda pop, p, t, rng: fn(pop, p)
 
+
+def lv_equilibrium(r, A):
+    r = np.asarray(r, dtype=np.float64)
+    A = np.asarray(A, dtype=np.float64)
+    x_star = np.linalg.solve(A, -r)
+    feasible = bool(np.all(x_star > 0))
+    eig = np.linalg.eigvals(np.diag(x_star) @ A)
+    stable = bool(np.all(eig.real < 0))
+    return x_star, feasible, stable, eig
+
+
+def equilibrium_reward(pop, eq_pop, tol=1.0):
+    pop = np.asarray(pop, dtype=np.float64)
+    eq_pop = np.asarray(eq_pop, dtype=np.float64)
+    d = np.linalg.norm(pop - eq_pop) / np.linalg.norm(eq_pop)
+    return float(np.exp(-d / tol))
 
 class model_1_3(gym.Env):
     metadata = {"render_modes": []}
@@ -88,6 +106,14 @@ class model_1_3(gym.Env):
         self.training = bool(cfg.get("training", True))
         self.early_end_penalty = cfg.get("early_end_penalty", default_penalty)
 
+        self.reward_type = cfg.get("reward_type", "harvest_equilibrium")
+        if self.reward_type not in _REWARD_TYPES:
+            raise ValueError(f"reward_type debe ser uno de {_REWARD_TYPES}")
+        self.eq_tolerance = float(cfg.get("eq_tolerance", 1.0))
+        self.eq_pop = None
+        if self.reward_type != "harvest":
+            self.eq_pop = self._get_equilibrium(cfg)
+
         self.action_space = spaces.Box(0.0, 1.0, shape=(self.n_fished,), dtype=np.float32)
         self.observation_space = spaces.Box(
             0.0, 1.0, shape=(self.num_species,), dtype=np.float32
@@ -97,6 +123,28 @@ class model_1_3(gym.Env):
         self.pop = self.initial_pop.copy()
 
         self.reset(seed=cfg.get("seed"))
+
+    def _get_equilibrium(self, cfg):
+        if cfg.get("eq_pop") is not None:
+            eq = np.asarray(cfg["eq_pop"], dtype=np.float64)
+            if eq.size != self.num_species:
+                raise ValueError(
+                    f"eq_pop tiene {eq.size} entradas; se esperaban {self.num_species}."
+                )
+            return eq
+
+        if "r" not in self.parameters or "A" not in self.parameters:
+            raise ValueError(
+            )
+        eq, feasible, stable, eig = lv_equilibrium(self.parameters["r"], self.parameters["A"])
+        if not feasible:
+            raise ValueError(
+            )
+        if not stable:
+            warnings.warn("equilibrio inestable")
+        if np.any(eq <= self.threshold):
+            warnings.warn("equilibrio bajo el umbral de extincion")
+        return eq
 
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
@@ -116,9 +164,16 @@ class model_1_3(gym.Env):
         action = self._format_action(action)
         pop = self.pop.copy()
 
-        pop, reward = self.harvest(pop, action)
+        pop, harvest_reward = self.harvest(pop, action)
         pop = self.growth_fn(pop, self.parameters, self.timestep, self.np_random)
         pop = np.maximum(np.asarray(pop, dtype=np.float32), 0.0)
+
+        if self.reward_type == "harvest_equilibrium":
+            reward = harvest_reward * equilibrium_reward(pop, self.eq_pop, self.eq_tolerance)
+        elif self.reward_type == "equilibrium":
+            reward = equilibrium_reward(pop, self.eq_pop, self.eq_tolerance)
+        else:
+            reward = harvest_reward
 
         terminated = bool(self.training and np.any(pop <= self.threshold))
         if terminated:
@@ -149,12 +204,17 @@ class model_1_3(gym.Env):
         return np.clip(self.pop / self.bound, 0.0, 1.0).astype(np.float32)
 
     def _get_info(self):
-        return {
+        info = {
             "population": self.pop.copy(),
             "t": self.timestep,
             "species": self.species_names,
             "fished": tuple(self.species_names[i] for i in self.fished_idx),
         }
+        if self.eq_pop is not None:
+            info["eq_distance"] = float(
+                np.linalg.norm(self.pop - self.eq_pop) / np.linalg.norm(self.eq_pop)
+            )
+        return info
 
     def update_state(self, pop):
         return np.asarray(pop, dtype=np.float32) / self.bound

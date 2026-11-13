@@ -148,11 +148,9 @@ class model_2_3(gym.Env):
             raise ValueError(
             )
         if not stable:
-            warnings.warn(
-            )
+            warnings.warn("equilibrio inestable")
         if np.any(eq <= self.threshold):
-            warnings.warn(
-            )
+            warnings.warn("equilibrio bajo el umbral de extincion")
         return eq
 
     def reset(self, *, seed=None, options=None):

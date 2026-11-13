@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rl4lotka"
+version = "0.1.0"
+description = "Aprendizaje por refuerzo en redes troficas de Lotka-Volterra"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "gymnasium",
+    "stable-baselines3",
+    "sb3-contrib",
+    "torch",
+    "pyyaml",
+]
+
+# la carpeta src/ es el paquete rl4lotka: src/envs -> rl4lotka.envs, src/train -> rl4lotka.train
+[tool.setuptools]
+package-dir = {"rl4lotka" = "src"}
+packages = ["rl4lotka", "rl4lotka.envs", "rl4lotka.train"]

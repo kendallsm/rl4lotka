@@ -8,7 +8,7 @@ from stable_baselines3 import A2C, DDPG, PPO, SAC, TD3
 from stable_baselines3.common.callbacks import CheckpointCallback
 from stable_baselines3.common.env_util import make_vec_env
 
-import envs  # noqa: F401
+from .. import envs  # noqa: F401
 ALGOS = {
     "ppo": PPO,
     #  vienen de sb3_contrib
@@ -16,6 +16,9 @@ ALGOS = {
     "recurrentppo": RecurrentPPO,  
     "rppo": RecurrentPPO,
 }
+def algorithm(algo):
+    return ALGOS[algo.lower()]
+
 #Para leer los yml
 def load_options(config_file, **kwargs): 
     with open(config_file, "r", encoding="utf-8") as f:
