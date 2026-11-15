@@ -206,6 +206,7 @@ class parameters_model_1_2_1(_LVParameters):
         "m_B": 0.1, "s_B": 0.15, "a_BD": 1.2, "e_B": 0.5,
         "m_C": 0.1, "s_C": 0.15, "a_CD": 1.2, "e_C": 0.5,
         "r_D": 1.0, "s_D": 1.0,
+        "c_BC": 0.0,
         "dt": 1.0, "substeps": 20, "sigma": 0.02,
     }
 
@@ -214,8 +215,8 @@ class parameters_model_1_2_1(_LVParameters):
         r = np.array([-p["m_A"], -p["m_B"], -p["m_C"], p["r_D"]])
         A = np.array([
             [-p["s_A"], p["e_A"] * p["a_AB"], p["e_A"] * p["a_AC"], 0.0],
-            [-p["a_AB"], -p["s_B"], 0.0, p["e_B"] * p["a_BD"]],
-            [-p["a_AC"], 0.0, -p["s_C"], p["e_C"] * p["a_CD"]],
+            [-p["a_AB"], -p["s_B"], -p["c_BC"], p["e_B"] * p["a_BD"]],
+            [-p["a_AC"], -p["c_BC"], -p["s_C"], p["e_C"] * p["a_CD"]],
             [0.0, -p["a_BD"], -p["a_CD"], -p["s_D"]],
         ])
         return r, A
@@ -230,6 +231,7 @@ class parameters_model_2_3(_LVParameters):
         "r_C": 1.0, "s_C": 1.0,
         "r_D": 1.1, "s_D": 1.1,
         "r_E": 0.9, "s_E": 0.9,
+        "c_CE": 0.0,
         "dt": 1.0, "substeps": 20, "sigma": 0.02,
     }
 
@@ -239,9 +241,9 @@ class parameters_model_2_3(_LVParameters):
         A = np.array([
             [-p["s_A"], 0.0, p["e_A"] * p["a_AC"], p["e_A"] * p["a_AD"], 0.0],
             [0.0, -p["s_B"], 0.0, p["e_B"] * p["a_BD"], p["e_B"] * p["a_BE"]],
-            [-p["a_AC"], 0.0, -p["s_C"], 0.0, 0.0],
+            [-p["a_AC"], 0.0, -p["s_C"], 0.0, -p["c_CE"]],
             [-p["a_AD"], -p["a_BD"], 0.0, -p["s_D"], 0.0],
-            [0.0, -p["a_BE"], 0.0, 0.0, -p["s_E"]],
+            [0.0, -p["a_BE"], -p["c_CE"], 0.0, -p["s_E"]],
         ])
         return r, A
 
@@ -259,7 +261,7 @@ class parameters_model_1_2(_Parameters):
         "beta": 0.3,                 # ataque maximo del depredador A
         "v0": 0.3,                   # respuesta
         "D": 1.1,                    # cuanto mas ataca A a C que a B
-        "tau_yx": 0.0, "tau_xy": 0.0,  # migracion entre B e C (apagada)
+        "tau_yx": 0.0, "tau_xy": 0.0,  # migracion entre B y C (apagada)
         "cV": 0.1,                   # competencia B-C
         "f": 0.1,                    # conversion de presa en depredador
         "dH": 0.1,                   # mortalidad del depredador
