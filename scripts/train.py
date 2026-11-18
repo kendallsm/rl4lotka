@@ -36,6 +36,8 @@ parser.add_argument("--steps", type=int, default=100_000)
 parser.add_argument("--save-path", default="saved_agents")
 parser.add_argument("--id", default=None)
 parser.add_argument("--config", nargs="*", default=[], metavar="CLAVE=VALOR")
+parser.add_argument("--progress", action="store_true")
+parser.add_argument("--checkpoint", type=int, default=0)
 args = parser.parse_args()
 
 options = {
@@ -49,7 +51,10 @@ if args.id:
     options["id"] = args.id
 if args.algo == "RecurrentPPO":
     options["algo_config"] = {"policy": "MlpLstmPolicy"}
-
+if args.progress:
+    options["progress_bar"] = True
+if args.checkpoint:
+    options["checkpoint_freq"] = args.checkpoint
 save_id, options = train(options)
 
 with open("log.txt", "a", encoding="utf-8") as file:
