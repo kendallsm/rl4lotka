@@ -1,0 +1,17 @@
+{'algo': 'PPO', 'model': 'model_2_3', 'total_timesteps': 1000000, 'save_path': 'saved_agents', 'config': {'reward_type': 'equilibrium', 'c_CE': 1.4}, 'id': 'inestable'}
+save_id: saved_agents/PPO-model_2_3-inestable.zip
+
+{'algo': 'PPO', 'model': 'model_1_2_1', 'total_timesteps': 1000000, 'save_path': 'saved_agents', 'config': {'reward_type': 'equilibrium', 'c_BC': 0.4}, 'id': 'inestable'}
+save_id: saved_agents/PPO-model_1_2_1-inestable.zip
+
+{'algo': 'PPO', 'model': 'model_1_3', 'total_timesteps': 1000000, 'save_path': 'saved_agents', 'config': {'reward_type': 'equilibrium', 's_A': 3.0, 'c_BC': 1.2}, 'id': 'inestable'}
+save_id: saved_agents/PPO-model_1_3-inestable.zip
+
+{'algo': 'TQC', 'model': 'model_1_2_1', 'total_timesteps': 250000, 'save_path': 'saved_agents', 'config': {'reward_type': 'equilibrium', 'c_BC': 0.4}, 'id': 'inestable', 'progress_bar': True, 'checkpoint_freq': 100000}
+save_id: saved_agents/TQC-model_1_2_1-inestable.zip
+
+{'algo': 'TQC', 'model': 'model_2_3', 'total_timesteps': 250000, 'save_path': 'saved_agents', 'config': {'reward_type': 'equilibrium', 'c_CE': 1.4}, 'id': 'inestable', 'progress_bar': True, 'checkpoint_freq': 100000}
+save_id: saved_agents/TQC-model_2_3-inestable.zip
+
+{'algo': 'TQC', 'model': 'model_1_3', 'total_timesteps': 1000000, 'save_path': 'saved_agents', 'config': {'reward_type': 'equilibrium', 's_A': 3.0, 'c_BC': 1.2}, 'id': 'inestable', 'progress_bar': True, 'checkpoint_freq': 100000}
+save_id: saved_agents/TQC-model_1_3-inestable_300000_steps.zip
